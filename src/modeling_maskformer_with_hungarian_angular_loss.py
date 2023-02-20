@@ -1206,12 +1206,12 @@ class MaskFormerLoss(nn.Module):
             num_images: int = int(int(num_masks.item()) / 3)
             if WITH_HUNGARIAN == True:
                 indices: List[Tuple[np.array]] = []
-                pred_scores = torch.index_select(class_queries_logits, 2, torch.Tensor([0,1,2]).type(torch.int))
+                pred_scores = torch.index_select(class_queries_logits, 2, torch.Tensor([0,1,2]).type(torch.int).to(class_queries_logits.device))
                 for ps_ind in range(pred_scores.shape[0]):
                     assigned_indices: Tuple[np.array] = linear_sum_assignment(pred_scores[ps_ind].detach().cpu())
                     assigned_indices_tensors: Tuple[torch.Tensor] = ()
                     for assigned_indice in assigned_indices:
-                        assigned_indices_tensors = assigned_indices_tensors + (torch.Tensor(assigned_indice).type(torch.long),)
+                        assigned_indices_tensors = assigned_indices_tensors + (torch.Tensor(assigned_indice).type(torch.long).to(class_queries_logits.device),)
                     indices.append(assigned_indices_tensors)
             else:
                 indices = [(torch.Tensor([0, 1, 2]).type(torch.long), torch.Tensor([0,1,2]).type(torch.long))] * num_images
